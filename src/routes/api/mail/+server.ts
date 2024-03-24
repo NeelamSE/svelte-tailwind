@@ -14,7 +14,7 @@ export const POST: RequestHandler = async ({ request }) => {
         const jsonData: any = await request.json();
 
         const message = {
-            from: "neelamverma130604@gmail.com",
+            from: "Neelam <neelamverma130604@gmail.com>",
             to: jsonData.mail,
             subject: "Thank you for contact us ",
             html: `
