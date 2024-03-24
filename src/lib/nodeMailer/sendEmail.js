@@ -9,18 +9,17 @@ const transport = nodemailer.createTransport({
     }
 })
 
+export function send(name){
 
+    let template=`<p>Hello ${name},</p>`
 
+    const message={
+        from:"neelamverma130604@gmail.com",
+        to:"neelam.verma_cs22@gla.ac.in",
+        subject:"test",
+        html:template
+    }
 
-const message={
-    from:"neelamverma130604@gmail.com",
-    to:"neelam.verma_cs22@gla.ac.in",
-    subject:"test",
-    html:`<h1>Hello</h1>`
-}
-
-
-export function send(){
     transport.sendMail(message, (err, info) => {
         if (err) {
             console.log(err)
