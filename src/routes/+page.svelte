@@ -1,6 +1,11 @@
 <script lang="ts">
 
    import {sendMail} from "$lib/mail/mail";
+   import { Notyf } from 'notyf';
+   import 'notyf/notyf.min.css';
+   import {onMount} from "svelte";
+   let notyf;
+
 
    let testArr = [
       {
@@ -35,12 +40,14 @@
 
    let mobileMenuHidden = true;
 
+   let validationArr=[];
+
    function toggleMobileMenu() {
       console.log("clicked");
       mobileMenuHidden = !mobileMenuHidden;
    }
 
-   const jsonData={
+   let jsonData={
       name:"",
       mail:"",
       phone:"",
@@ -48,10 +55,48 @@
       message:"",
    };
 
+
+
    function submitButton(){
-         console.log(jsonData)
-      sendMail(jsonData)
+      validationArr=[];
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if(jsonData.phone===null ||(jsonData.phone!==null && (jsonData.phone.toString().length<10 || jsonData.phone.toString().length>10 ))){
+         validationArr.push("Phone");
+      }
+      if(jsonData.name.trim().length===0){
+         validationArr.push("Name");
+      }
+      if(!emailRegex.test(jsonData.mail.trim())){
+         validationArr.push("Email");
+      }
+      if(jsonData.message.trim().length===0){
+         validationArr.push("Message");
+      }
+      if(jsonData.address.trim().length===0){
+         validationArr.push("Address");
+      }
+
+      
+      
+
+
+      if(validationArr.length===0){
+         sendMail(jsonData);
+         notyf.success("Mail sent");
+         jsonData.name='';
+         jsonData.phone='';
+         jsonData.message='';
+         jsonData.address='';
+         jsonData.mail='';
+
+      }else{
+         notyf.error("Error in Data")
+      }
+   
    }
+   onMount(()=>{
+      notyf = new Notyf();
+   })
 </script>
 
 <body>
@@ -465,11 +510,10 @@
          in touch shortly to discuss your needs.
       </p>
    </div>
-   <form class="mx-auto mt-16 max-w-xl sm:mt-20">
+   <div class="mx-auto mt-16 max-w-xl sm:mt-20">
       <div class="grid grid-cols-1 gap-x-8 gap-y-6 sm:grid-cols-2">
          <div>
-            <!--               <label for="first-name" class="block text-sm font-semibold leading-6 text-gray-900">First name</label>-->
-            <div class="mt-2.5">
+           <div class="mt-2.5">
                <input bind:value={jsonData.name}
                        required={false}
                        type="text"
@@ -477,36 +521,34 @@
                        id="first-name"
                        autocomplete="given-name"
                        placeholder="Name"
-                       class="block w-full border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-               />
+                       class={validationArr.includes('Name')?"block w-full border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-2 ring-inset ring-red-500 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6":"block w-full border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-2 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"}/>
             </div>
          </div>
          <div>
-            <!--               <label for="last-name" class="block text-sm font-semibold leading-6 text-gray-900">Last name</label>-->
-            <div class="mt-2.5">
+           <div class="mt-2.5">
                <input  bind:value={jsonData.mail}
                        required={false}
-                       type="text"
+                       type="email"
                        name="email"
                        id="email"
                        autocomplete="family-name"
                        placeholder="Email"
-                       class="block w-full border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-               />
+                       class={validationArr.includes('Email')?"block w-full border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-2 ring-inset ring-red-500 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6":"block w-full border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-2 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"}/>
+               
             </div>
          </div>
          <div>
             <!--               <label for="first-name" class="block text-sm font-semibold leading-6 text-gray-900">First name</label>-->
             <div class="mt-2.5">
-               <input   bind:value={jsonData.phone}
+               <input  bind:value={jsonData.phone}
                        required={false}
-                       type="text"
+                       type="number"
                        name="phone"
                        id="phone"
-                       autocomplete="given-name"
+                       autocomplete="mobile"
                        placeholder="Phone "
-                       class="block w-full border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-               />
+                       class={validationArr.includes('Phone')?"block w-full border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-2 ring-inset ring-red-500 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6":"block w-full border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-2 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"}/>
+               
             </div>
          </div>
          <div>
@@ -519,8 +561,8 @@
                        id="address"
                        autocomplete="address"
                        placeholder="Address"
-                       class="block w-full border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-               />
+                       class={validationArr.includes('Address')?"block w-full border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-2 ring-inset ring-red-500 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6":"block w-full border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-2 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"}/>
+               
             </div>
          </div>
 
@@ -533,8 +575,10 @@
                   id="message"
                   rows="4"
                   placeholder="Your Message"
-                  class="block w-full border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-          ></textarea>
+                  class={validationArr.includes('Message')?"block w-full border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-2 ring-inset ring-red-500 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6":
+                  "block w-full border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-2 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"}
+          />
+              
             </div>
          </div>
       </div>
@@ -548,7 +592,7 @@
          </button>
          <!--            <button type="submit" class="bg-blue-600 text-white rounded-sm py-2 w-full block">Submit →</button>-->
       </div>
-   </form>
+   </div>
 </div>
 
 <footer class="bg-[#344349] text-white py-8 px-5 mt-0">
