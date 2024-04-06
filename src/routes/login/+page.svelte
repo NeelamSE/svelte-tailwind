@@ -2,6 +2,13 @@
 <script>
 
     import {goto} from "$app/navigation";
+    import {isuserLoggedIn} from "$lib/utils/store";
+    import { Notyf } from 'notyf';
+    import 'notyf/notyf.min.css';
+    import {onMount} from "svelte";
+    import Cookies from 'js-cookie';
+    let notyf;
+
 
     const userData = {
         email:"",
@@ -9,16 +16,28 @@
     }
 
      async function handleLogin(){
-        console.log(userData);
-      const D =await fetch('http://localhost:4000/login',{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(userData)});
+      const D =await fetch('http://localhost:3000/login',{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(userData)});
       const data = await D.json();
-      if(data.valid){
-          goto('/');
-      }
+         console.log(data) ;
+         if(data.token.trim()!==""){
+             Cookies.set("token",data.token);
+             console.log(Cookies.get("token"))
+
+         }else{
+             notyf.error('User Not Found , Please Sign Up using Register Button')
+
+         }
+         userData.email='';
+         userData.password='';
     }
+
+    onMount(()=>{
+        notyf = new Notyf();
+    })
 
 
 </script>
+
 
 <body class="max-h-screen">
 <a href="https://www.codewithfaraz.com/" class="logo" target="_blank">
@@ -29,7 +48,7 @@
         <div class="w-full px-5">
             <h2 class="text-2xl font-bold text-[#002D74]">Login</h2>
             <p class="text-sm mt-4 text-[#002D74]">If you have an account, please login</p>
-            <form class="mt-6" action="#" method="POST">
+            <div class="mt-6" >
                 <div>
                     <label class="block text-gray-700">Email Address</label>
                     <input type="email" name="" id="" bind:value={userData.email} placeholder="Enter Email Address" class="w-full px-4 py-3 rounded-lg bg-gray-200 mt-2 border focus:border-blue-500 focus:bg-white focus:outline-none" autofocus autocomplete required>
@@ -45,9 +64,9 @@
                     <a href="#" class="text-sm font-semibold text-gray-700 hover:text-blue-700 focus:text-blue-700">Forgot Password?</a>
                 </div>
 
-                <button type="submit" class="w-full block bg-blue-500 hover:bg-blue-400 focus:bg-blue-400 text-white font-semibold rounded-lg
+                <button  class="w-full block bg-blue-500 hover:bg-blue-400 focus:bg-blue-400 text-white font-semibold rounded-lg
                 px-4 py-3 mt-6" on:click={handleLogin} >Log In</button>
-            </form>
+            </div>
 
             <div class="mt-7 grid grid-cols-3 items-center text-gray-500">
                 <hr class="border-gray-500" />
@@ -62,7 +81,9 @@
 
             <div class="text-sm flex justify-between items-center mt-3">
                 <p>If you don't have an account...</p>
+                <a href="/signUp">
                 <button class="py-2 px-5 ml-3 bg-white border rounded-xl hover:scale-110 duration-300 border-blue-400  ">Register</button>
+                </a>
             </div>
         </div>
 
